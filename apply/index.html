@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Apply for Coaching | DanSmrtCoaching</title>
+<meta name="description" content="A short application for 1:1 coaching with Dan Smrt — six questions about your goal, what you've tried, and where it falls apart. It goes straight to my inbox.">
+<link rel="stylesheet" href="../styles.css">
+<style>
+  /* Scoped form styles — the application needs labels, textareas and a
+     select that the shared stylesheet doesn't cover. Kept here so the
+     rest of the site is untouched. */
+  .apply-form { margin-top: 8px; }
+  .field { margin: 0 0 22px; }
+  .field label {
+    display: block;
+    font-weight: 700;
+    font-size: 16px;
+    margin: 0 0 4px;
+    color: var(--ink);
+  }
+  .field .hint {
+    display: block;
+    font-size: 14px;
+    color: var(--ink-soft);
+    margin: 0 0 10px;
+  }
+  .field input[type="text"],
+  .field input[type="email"],
+  .field textarea,
+  .field select {
+    width: 100%;
+    padding: 13px 15px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    font-size: 16px;
+    font-family: inherit;
+    background: var(--paper-raised);
+    color: var(--ink);
+  }
+  .field textarea { min-height: 96px; resize: vertical; line-height: 1.5; }
+  .field input:focus,
+  .field textarea:focus,
+  .field select:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+  }
+  .name-row { display: flex; flex-wrap: wrap; gap: 14px; }
+  .name-row .field { flex: 1 1 220px; margin-bottom: 0; }
+  .apply-submit { margin-top: 24px; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="wrap">
+    <a class="brand" href="https://dansmrtcoaching.com">DanSmrt<span>Coaching</span></a>
+    <span class="pillar-tag">Apply</span>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <section class="hero" style="border-top:none;">
+    <p class="eyebrow">1:1 Coaching</p>
+    <h1>If you'd rather not figure out the next stretch alone.</h1>
+    <p class="lede">This is a short application — six questions, about two minutes. It comes straight to my inbox, I read every one, and I only take people on where I think I can actually help. No obligation, and no pitch attached to filling it out.</p>
+  </section>
+
+  <section>
+    <p class="section-kicker">What This Is</p>
+    <h2>Coaching built around your life, not a template.</h2>
+    <p>The free guides give you the plan. Coaching is for when the plan keeps colliding with a real schedule — the demanding job, the kids, the aging parents, the weeks that fall apart before Wednesday. My whole approach is keeping it simple enough to survive that, which is the same thing I teach in the guides, applied to your specifics instead of the general case.</p>
+    <p class="muted">Tell me where you're actually at below. The more honest the "where it falls apart" answer, the more useful my reply will be.</p>
+  </section>
+
+  <section class="signup-box" style="border-top:none;">
+    <h2>The application</h2>
+    <p class="muted">Six questions plus your name and email. Takes about two minutes.</p>
+
+    <!-- BREVO_FORM_START
+      Replace this block with the embed code from your Brevo application form
+      (Brevo dashboard → Contacts → Forms → Create a form → Embed).
+      Create these contact attributes in Brevo first (Contacts → Settings →
+      Contact attributes), then map each field to its attribute:
+        FIRSTNAME    (text)   — first name
+        EMAIL        (text)   — email
+        GOAL_90      (text)   — 90-day goal
+        TRIED        (text)   — what they've tried
+        FALLS_APART  (text)   — where it falls apart
+        HOURS_WEEK   (text)   — realistic hours per week
+        CONTEXT      (text)   — anything else / context
+        READINESS    (text)   — how ready they are to start
+      Route the form's submission notification to Dan's inbox so applications
+      arrive by email (Brevo → the form's Settings → email notification).
+    -->
+    <form class="apply-form" action="#" method="post">
+
+      <div class="name-row">
+        <div class="field">
+          <label for="FIRSTNAME">First name</label>
+          <input type="text" id="FIRSTNAME" name="FIRSTNAME" required>
+        </div>
+        <div class="field">
+          <label for="EMAIL">Email</label>
+          <input type="email" id="EMAIL" name="EMAIL" required>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="GOAL_90">1. What do you want to be true 90 days from now?</label>
+        <span class="hint">One specific thing — a number, a habit, or how you want to feel.</span>
+        <textarea id="GOAL_90" name="GOAL_90" required></textarea>
+      </div>
+
+      <div class="field">
+        <label for="TRIED">2. What have you already tried?</label>
+        <span class="hint">The diets, programs, or approaches — and whether any of them worked for a while.</span>
+        <textarea id="TRIED" name="TRIED" required></textarea>
+      </div>
+
+      <div class="field">
+        <label for="FALLS_APART">3. Where does it usually fall apart?</label>
+        <span class="hint">Be honest here — this is the most useful answer of the six.</span>
+        <textarea id="FALLS_APART" name="FALLS_APART" required></textarea>
+      </div>
+
+      <div class="field">
+        <label for="HOURS_WEEK">4. Realistically, how many hours a week can you give this?</label>
+        <span class="hint">Not the ideal — the honest number, on a normal week.</span>
+        <input type="text" id="HOURS_WEEK" name="HOURS_WEEK" required>
+      </div>
+
+      <div class="field">
+        <label for="CONTEXT">5. Anything else I should know?</label>
+        <span class="hint">Injuries, health context, schedule, what's going on in your life right now. Optional.</span>
+        <textarea id="CONTEXT" name="CONTEXT"></textarea>
+      </div>
+
+      <div class="field">
+        <label for="READINESS">6. How ready are you to start?</label>
+        <span class="hint">No wrong answer — it just helps me know how to reply.</span>
+        <select id="READINESS" name="READINESS" required>
+          <option value="" disabled selected>Choose one…</option>
+          <option value="Ready now">Ready to start now</option>
+          <option value="Few weeks">Ready in the next few weeks</option>
+          <option value="Exploring">Just exploring for now</option>
+        </select>
+      </div>
+
+      <button type="submit" class="btn apply-submit">Send My Application</button>
+    </form>
+    <!-- BREVO_FORM_END -->
+
+    <p class="form-note">Placeholder form — swap in your live Brevo embed code before this page goes live.</p>
+  </section>
+
+</div>
+
+<footer>
+  <div class="wrap">
+    <p>DanSmrtCoaching — K.I.S.S. of D.E.S.S. · Diet · Exercise · Sleep · Stress<br>
+    <a href="https://dansmrtcoaching.com">dansmrtcoaching.com</a></p>
+  </div>
+</footer>
+
+</body>
+</html>
