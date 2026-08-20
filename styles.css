@@ -161,7 +161,7 @@ p { margin: 0 0 16px; }
   margin: 0;
 }
 .signup-box h2 { color: #fff; }
-.signup-box .muted { color: #cfc9bd; }
+.signup-box .muted { color: #e6e0d4; }
 .signup-form {
   display: flex;
   flex-wrap: wrap;
@@ -190,7 +190,7 @@ p { margin: 0 0 16px; }
   text-align: center;
 }
 .btn:hover { background: var(--accent-deep); }
-.form-note { font-size: 13px; color: #b9b2a4; margin-top: 12px; }
+.form-note { font-size: 14px; color: #ddd6c8; margin-top: 12px; }
 
 /* Apply CTA */
 .apply-cta {
@@ -222,6 +222,7 @@ footer a { color: var(--ink-soft); }
   display: block;
   width: 100%;
   max-width: 540px;
+  min-height: 520px;
   margin: 20px auto 0;
   border: 0;
   border-radius: 10px;
@@ -229,5 +230,5 @@ footer a { color: var(--ink-soft); }
 }
 
 /* Apply page — email CTA */
-.apply-questions { margin: 18px 0 0; padding-left: 22px; color: #cfc9bd; }
+.apply-questions { margin: 18px 0 0; padding-left: 22px; color: #f4efe6; font-size: 17px; }
 .apply-questions li { margin-bottom: 8px; }
