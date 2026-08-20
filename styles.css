@@ -216,3 +216,14 @@ footer a { color: var(--ink-soft); }
   .hero { padding: 40px 0 28px; }
   section { padding: 30px 0; }
 }
+
+/* Brevo iframe signup form */
+.signup-frame {
+  display: block;
+  width: 100%;
+  max-width: 540px;
+  margin: 20px auto 0;
+  border: 0;
+  border-radius: 10px;
+  overflow: hidden;
+}
