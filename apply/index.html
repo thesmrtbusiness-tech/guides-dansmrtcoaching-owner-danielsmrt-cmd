@@ -77,83 +77,21 @@
 
   <section class="signup-box" style="border-top:none;">
     <h2>The application</h2>
-    <p class="muted">Six questions plus your name and email. Takes about two minutes.</p>
+    <p class="muted">Six questions. Takes about two minutes.</p>
 
-    <!-- BREVO_FORM_START
-      Replace this block with the embed code from your Brevo application form
-      (Brevo dashboard → Contacts → Forms → Create a form → Embed).
-      Create these contact attributes in Brevo first (Contacts → Settings →
-      Contact attributes), then map each field to its attribute:
-        FIRSTNAME    (text)   — first name
-        EMAIL        (text)   — email
-        GOAL_90      (text)   — 90-day goal
-        TRIED        (text)   — what they've tried
-        FALLS_APART  (text)   — where it falls apart
-        HOURS_WEEK   (text)   — realistic hours per week
-        CONTEXT      (text)   — anything else / context
-        READINESS    (text)   — how ready they are to start
-      Route the form's submission notification to Dan's inbox so applications
-      arrive by email (Brevo → the form's Settings → email notification).
-    -->
-    <form class="apply-form" action="#" method="post">
+    <!-- APPLY_CTA_START -->
+    <p><a class="btn" href="mailto:thesmrtbusiness@gmail.com?subject=Coaching%20application&body=Answer these six and send. Short answers are fine.%0D%0A%0D%0A1. What do you want to be true 90 days from now?%0D%0A%0D%0A2. What have you already tried?%0D%0A%0D%0A3. Where does it usually fall apart?%0D%0A%0D%0A4. Realistically, how many hours a week can you give this?%0D%0A%0D%0A5. Anything else I should know?%0D%0A%0D%0A6. How ready are you to start? (Ready now / Few weeks / Just exploring)%0D%0A%0D%0A">Email me your application</a></p>
+    <p class="form-note">Opens your email app with the questions filled in. Or just email <a href="mailto:thesmrtbusiness@gmail.com">thesmrtbusiness@gmail.com</a> and answer them in your own words.</p>
 
-      <div class="name-row">
-        <div class="field">
-          <label for="FIRSTNAME">First name</label>
-          <input type="text" id="FIRSTNAME" name="FIRSTNAME" required>
-        </div>
-        <div class="field">
-          <label for="EMAIL">Email</label>
-          <input type="email" id="EMAIL" name="EMAIL" required>
-        </div>
-      </div>
-
-      <div class="field">
-        <label for="GOAL_90">1. What do you want to be true 90 days from now?</label>
-        <span class="hint">One specific thing — a number, a habit, or how you want to feel.</span>
-        <textarea id="GOAL_90" name="GOAL_90" required></textarea>
-      </div>
-
-      <div class="field">
-        <label for="TRIED">2. What have you already tried?</label>
-        <span class="hint">The diets, programs, or approaches — and whether any of them worked for a while.</span>
-        <textarea id="TRIED" name="TRIED" required></textarea>
-      </div>
-
-      <div class="field">
-        <label for="FALLS_APART">3. Where does it usually fall apart?</label>
-        <span class="hint">Be honest here — this is the most useful answer of the six.</span>
-        <textarea id="FALLS_APART" name="FALLS_APART" required></textarea>
-      </div>
-
-      <div class="field">
-        <label for="HOURS_WEEK">4. Realistically, how many hours a week can you give this?</label>
-        <span class="hint">Not the ideal — the honest number, on a normal week.</span>
-        <input type="text" id="HOURS_WEEK" name="HOURS_WEEK" required>
-      </div>
-
-      <div class="field">
-        <label for="CONTEXT">5. Anything else I should know?</label>
-        <span class="hint">Injuries, health context, schedule, what's going on in your life right now. Optional.</span>
-        <textarea id="CONTEXT" name="CONTEXT"></textarea>
-      </div>
-
-      <div class="field">
-        <label for="READINESS">6. How ready are you to start?</label>
-        <span class="hint">No wrong answer — it just helps me know how to reply.</span>
-        <select id="READINESS" name="READINESS" required>
-          <option value="" disabled selected>Choose one…</option>
-          <option value="Ready now">Ready to start now</option>
-          <option value="Few weeks">Ready in the next few weeks</option>
-          <option value="Exploring">Just exploring for now</option>
-        </select>
-      </div>
-
-      <button type="submit" class="btn apply-submit">Send My Application</button>
-    </form>
-    <!-- BREVO_FORM_END -->
-
-    <p class="form-note">Placeholder form — swap in your live Brevo embed code before this page goes live.</p>
+    <ol class="apply-questions">
+      <li>What do you want to be true 90 days from now?</li>
+      <li>What have you already tried?</li>
+      <li>Where does it usually fall apart?</li>
+      <li>Realistically, how many hours a week can you give this?</li>
+      <li>Anything else I should know?</li>
+      <li>How ready are you to start?</li>
+    </ol>
+    <!-- APPLY_CTA_END -->
   </section>
 
 </div>
