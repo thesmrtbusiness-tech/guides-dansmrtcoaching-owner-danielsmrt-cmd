@@ -1,0 +1,759 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Voice-activated teleprompter for recording sessions.">
+<meta name="theme-color" content="#14171c">
+<meta name="robots" content="noindex, nofollow">
+<style>
+  html, body { margin: 0; height: 100%; }
+  img { max-width: 100%; }
+  [hidden] { display: none !important; }
+</style>
+<title>Tally Prompter</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&family=JetBrains+Mono:wght@500;600&family=Public+Sans:wght@400;600;700&family=Archivo:wght@600;700;800&family=Literata:wght@500;600&display=swap">
+<style>
+  :root {
+    --ink: #14171c;
+    --ink-2: #1b1f26;
+    --ink-3: #262c35;
+    --paper: #eef0ef;
+    --paper-2: #ffffff;
+    --line: #d8dbd8;
+    --text: #191c1a;
+    --text-dim: #5c6460;
+    --text-on-ink: #e9ebe6;
+    --text-on-ink-dim: #93a09a;
+    --tally: #ff4630;
+    --tally-dim: #ffe1db;
+    --focus: #2d6e5e;
+    --shadow: 0 1px 2px rgba(20,23,26,.06), 0 8px 24px rgba(20,23,26,.08);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #14171c;
+      --paper-2: #1b1f26;
+      --line: #2b313a;
+      --text: #e9ebe6;
+      --text-dim: #8d968f;
+      --tally-dim: #3a1f1c;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #14171c;
+    --paper-2: #1b1f26;
+    --line: #2b313a;
+    --text: #e9ebe6;
+    --text-dim: #8d968f;
+    --tally-dim: #3a1f1c;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--text);
+    font-family: "Manrope", system-ui, -apple-system, sans-serif;
+    -webkit-tap-highlight-color: transparent;
+  }
+  h1, h2, h3 { text-wrap: balance; margin: 0; }
+  button { font-family: inherit; }
+  .mono { font-family: "JetBrains Mono", ui-monospace, monospace; font-variant-numeric: tabular-nums; }
+
+  [hidden] { display: none !important; }
+
+  /* ---------- LIBRARY ---------- */
+  #view-library { min-height: 100%; padding: 32px 20px 64px; }
+  .lib-wrap { max-width: 640px; margin: 0 auto; display: flex; flex-direction: column; gap: 28px; }
+
+  .lib-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  .brand { display: flex; align-items: center; gap: 10px; }
+  .brand-lamp { width: 12px; height: 12px; border-radius: 50%; background: var(--tally); box-shadow: 0 0 0 3px var(--tally-dim); flex: none; }
+  .brand-name { font-weight: 800; font-size: 1.5rem; letter-spacing: -0.01em; }
+  .brand-sub { color: var(--text-dim); font-size: 0.82rem; margin-top: 2px; }
+
+  .btn {
+    appearance: none; border: 1px solid var(--line); background: var(--paper-2); color: var(--text);
+    padding: 11px 18px; border-radius: 10px; font-weight: 700; font-size: 0.92rem; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 8px; box-shadow: var(--shadow);
+  }
+  .btn:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .btn-primary { background: var(--tally); border-color: var(--tally); color: #fff8f6; }
+  .btn-ghost { background: transparent; box-shadow: none; border-color: transparent; color: var(--text-dim); }
+  .btn-ghost:hover { color: var(--text); }
+  .btn-danger { color: var(--tally); }
+
+  .script-list { display: flex; flex-direction: column; gap: 10px; }
+  .script-card {
+    display: flex; align-items: center; gap: 14px; padding: 16px 16px; border-radius: 14px;
+    background: var(--paper-2); border: 1px solid var(--line); cursor: pointer; text-align: left; width: 100%;
+  }
+  .script-card:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .script-main { flex: 1; min-width: 0; }
+  .script-title { font-weight: 700; font-size: 1.02rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .script-preview { color: var(--text-dim); font-size: 0.86rem; margin-top: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .script-meta { color: var(--text-dim); font-size: 0.78rem; margin-top: 6px; display: flex; gap: 10px; }
+  .script-actions { display: flex; gap: 4px; flex: none; }
+  .icon-btn {
+    appearance: none; border: none; background: transparent; color: var(--text-dim); width: 34px; height: 34px;
+    border-radius: 8px; cursor: pointer; display: grid; place-items: center;
+  }
+  .icon-btn:hover { background: var(--line); color: var(--text); }
+  .icon-btn:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+  .empty-state { border: 1px dashed var(--line); border-radius: 14px; padding: 40px 20px; text-align: center; color: var(--text-dim); }
+  .empty-state strong { color: var(--text); display: block; margin-bottom: 4px; font-size: 1rem; }
+
+  /* ---------- EDITOR ---------- */
+  #view-editor { min-height: 100%; padding: 24px 20px 40px; }
+  .ed-wrap { max-width: 640px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; height: calc(100vh - 64px); }
+  .ed-head { display: flex; align-items: center; gap: 10px; }
+  .ed-title-input {
+    flex: 1; font-size: 1.15rem; font-weight: 700; border: none; background: transparent; color: var(--text);
+    padding: 8px 0; border-bottom: 2px solid transparent;
+  }
+  .ed-title-input:focus { outline: none; border-bottom-color: var(--tally); }
+  .ed-body {
+    flex: 1; resize: none; border: 1px solid var(--line); background: var(--paper-2); color: var(--text);
+    border-radius: 14px; padding: 18px; font-size: 1.05rem; line-height: 1.6; font-family: "Public Sans", sans-serif;
+  }
+  .ed-body:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .ed-foot { display: flex; justify-content: space-between; align-items: center; color: var(--text-dim); font-size: 0.82rem; }
+  .ed-actions { display: flex; gap: 8px; }
+
+  /* ---------- PROMPTER ---------- */
+  #view-prompter { position: fixed; inset: 0; display: none; }
+  #view-prompter.active { display: block; }
+  .stage {
+    position: absolute; inset: 0; overflow-y: auto; overflow-x: hidden;
+    scrollbar-width: none;
+  }
+  .stage::-webkit-scrollbar { display: none; }
+  .stage-pad { height: 60vh; }
+  .stage-text {
+    padding: 0 6vw; white-space: pre-wrap; word-wrap: break-word;
+    max-width: 1100px; margin: 0 auto;
+  }
+
+  .rail {
+    position: fixed; top: 0; right: 0; height: 100%; display: flex; flex-direction: column; align-items: flex-end;
+    gap: 10px; padding: 14px; pointer-events: none; z-index: 5;
+  }
+  .rail > * { pointer-events: auto; }
+  .rail-btn {
+    width: 46px; height: 46px; border-radius: 50%; border: 1px solid rgba(255,255,255,.18);
+    background: rgba(20,23,26,.55); color: #eee; backdrop-filter: blur(6px); cursor: pointer;
+    display: grid; place-items: center; box-shadow: var(--shadow);
+  }
+  .rail-btn:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+  .rail-btn.is-live { background: var(--tally); border-color: var(--tally); }
+
+  .meter {
+    width: 46px; height: 96px; border-radius: 23px; border: 1px solid rgba(255,255,255,.18);
+    background: rgba(20,23,26,.55); backdrop-filter: blur(6px); display: flex; flex-direction: column-reverse;
+    padding: 4px; box-shadow: var(--shadow);
+  }
+  .meter-fill { width: 100%; border-radius: 20px; background: linear-gradient(180deg, var(--tally), #ffb020); transition: height 60ms linear; }
+  .meter-threshold { position: relative; }
+  .meter-threshold::after {
+    content: ""; position: absolute; left: -1px; right: -1px; height: 2px; background: #fff; opacity: .85;
+  }
+
+  .drawer {
+    position: fixed; top: 0; right: 0; bottom: 0; width: min(340px, 88vw); background: var(--ink-2, #1b1f26);
+    color: var(--text-on-ink); box-shadow: -12px 0 32px rgba(0,0,0,.35); transform: translateX(100%);
+    transition: transform 220ms ease; z-index: 10; overflow-y: auto; padding: 20px 20px 32px;
+  }
+  .drawer.open { transform: translateX(0); }
+  .drawer-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+  .drawer-head h2 { font-size: 1rem; letter-spacing: .02em; text-transform: uppercase; color: var(--text-on-ink-dim); }
+  .field { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
+  .field label { font-size: 0.8rem; font-weight: 700; color: var(--text-on-ink-dim); text-transform: uppercase; letter-spacing: .03em; }
+  .field-row { display: flex; align-items: center; gap: 10px; }
+  .field-row output { font-family: "JetBrains Mono", monospace; font-size: 0.8rem; color: var(--text-on-ink-dim); min-width: 3ch; text-align: right; }
+  input[type="range"] { flex: 1; accent-color: var(--tally); }
+  select {
+    width: 100%; padding: 9px 10px; border-radius: 8px; border: 1px solid #333a44; background: #12151a; color: #eee;
+    font-family: inherit; font-size: 0.9rem;
+  }
+  .swatches { display: flex; gap: 8px; flex-wrap: wrap; }
+  .swatch { width: 30px; height: 30px; border-radius: 8px; border: 2px solid transparent; cursor: pointer; }
+  .swatch.selected { border-color: var(--tally); }
+  .swatch:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+  input[type="color"] { width: 40px; height: 30px; border: none; border-radius: 8px; background: none; padding: 0; cursor: pointer; }
+  .field.toggle-row { flex-direction: row; align-items: center; justify-content: space-between; gap: 12px; }
+  .toggle-label { font-size: 0.8rem; font-weight: 700; color: var(--text-on-ink-dim); text-transform: uppercase; letter-spacing: .03em; }
+  .notice {
+    border: 1px solid #4a3a24; background: #2a2114; color: #f0d9a8; border-radius: 10px;
+    padding: 12px 14px; font-size: 0.8rem; line-height: 1.5; margin-bottom: 18px;
+  }
+  .notice strong { display: block; color: #ffc96b; margin-bottom: 4px; }
+  .notice code { font-family: "JetBrains Mono", monospace; font-size: 0.95em; word-break: break-all; }
+  .switch { position: relative; width: 44px; height: 26px; display: block; flex: none; }
+  .switch input { position: absolute; inset: 0; opacity: 0; width: 100%; height: 100%; margin: 0; cursor: pointer; z-index: 2; }
+  .switch .track { position: absolute; inset: 0; background: #333a44; border-radius: 999px; transition: background 150ms; pointer-events: none; z-index: 1; }
+  .switch .thumb { position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: #eee; transition: transform 150ms; }
+  .switch input:checked + .track { background: var(--tally); }
+  .switch input:checked + .track .thumb { transform: translateX(18px); }
+  .switch input:focus-visible + .track { outline: 2px solid #fff; outline-offset: 2px; }
+  .drawer .btn { width: 100%; justify-content: center; margin-top: 4px; }
+  .status-line { font-size: 0.78rem; color: var(--text-on-ink-dim); margin-top: -8px; margin-bottom: 18px; line-height: 1.5; }
+
+  @media (max-width: 420px) {
+    .lib-head { align-items: flex-start; flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+<div id="view-library">
+  <div class="lib-wrap">
+    <div class="lib-head">
+      <div class="brand">
+        <span class="brand-lamp" aria-hidden="true"></span>
+        <div>
+          <div class="brand-name">Tally Prompter</div>
+          <div class="brand-sub">Voice-activated scroll · reads the mic, not your words</div>
+        </div>
+      </div>
+      <button class="btn btn-primary" id="btn-new-script" type="button">+ New script</button>
+    </div>
+    <div class="script-list" id="script-list"></div>
+  </div>
+</div>
+
+<div id="view-editor" hidden>
+  <div class="ed-wrap">
+    <div class="ed-head">
+      <button class="icon-btn" id="btn-editor-back" type="button" aria-label="Back to library">←</button>
+      <input class="ed-title-input" id="editor-title" type="text" placeholder="Untitled script" maxlength="120">
+    </div>
+    <textarea class="ed-body" id="editor-body" placeholder="Paste or type your script here…"></textarea>
+    <div class="ed-foot">
+      <span class="mono" id="editor-count">0 words</span>
+      <div class="ed-actions">
+        <button class="btn btn-ghost" id="btn-editor-cancel" type="button">Cancel</button>
+        <button class="btn btn-primary" id="btn-editor-save" type="button">Save script</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="view-prompter">
+  <div class="stage" id="stage">
+    <div class="stage-pad"></div>
+    <div class="stage-text" id="stage-text"></div>
+    <div class="stage-pad"></div>
+  </div>
+
+  <div class="rail">
+    <button class="rail-btn" id="btn-exit-prompter" type="button" aria-label="Exit to library" title="Exit">✕</button>
+    <button class="rail-btn" id="btn-restart" type="button" aria-label="Scroll to top" title="Restart">⤒</button>
+    <button class="rail-btn" id="btn-play-toggle" type="button" aria-label="Start scrolling" title="Play / pause scroll">▶</button>
+    <button class="rail-btn" id="btn-mic-toggle" type="button" aria-label="Turn mic on" title="Voice control">🎙</button>
+    <div class="meter" aria-hidden="true"><div class="meter-fill" id="meter-fill" style="height:0%"></div></div>
+    <button class="rail-btn" id="btn-drawer-toggle" type="button" aria-label="Open settings" title="Settings">⚙</button>
+  </div>
+
+  <div class="drawer" id="drawer">
+    <div class="drawer-head">
+      <h2>Prompter settings</h2>
+      <button class="icon-btn" id="btn-drawer-close" type="button" aria-label="Close settings" style="color:#eee;">✕</button>
+    </div>
+
+    <button class="btn btn-primary" id="btn-enable-mic" type="button" style="margin-bottom:12px;">Enable microphone</button>
+
+    <div class="toggle-row field">
+      <span class="toggle-label">Voice-activated scroll</span>
+      <label class="switch" for="toggle-voice">
+        <input type="checkbox" id="toggle-voice">
+        <span class="track"><span class="thumb"></span></span>
+      </label>
+    </div>
+    <div class="status-line" id="mic-status">Mic off — use ▶ to scroll at a steady speed, or drag the script by hand.</div>
+    <div class="notice" id="embed-notice" hidden></div>
+
+    <div class="field">
+      <label for="range-sensitivity">Mic sensitivity <output id="out-sensitivity"></output></label>
+      <div class="field-row"><input type="range" id="range-sensitivity" min="1" max="100" value="35"></div>
+    </div>
+
+    <div class="field">
+      <label for="range-speed">Scroll speed <output id="out-speed"></output></label>
+      <div class="field-row"><input type="range" id="range-speed" min="10" max="140" value="55"></div>
+    </div>
+
+    <div class="field">
+      <label for="select-font">Typeface</label>
+      <select id="select-font">
+        <option value="'Public Sans', sans-serif">Public Sans</option>
+        <option value="'Archivo', sans-serif">Archivo (bold)</option>
+        <option value="'Literata', serif">Literata (serif)</option>
+        <option value="'JetBrains Mono', monospace">Monospace</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label for="range-size">Text size <output id="out-size"></output></label>
+      <div class="field-row"><input type="range" id="range-size" min="24" max="96" value="48"></div>
+    </div>
+
+    <div class="field">
+      <label>Text color</label>
+      <div class="swatches" id="swatches-text"></div>
+    </div>
+
+    <div class="field">
+      <label>Background color</label>
+      <div class="swatches" id="swatches-bg"></div>
+    </div>
+
+    <button class="btn" id="btn-edit-script" type="button">Edit this script</button>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var LS_SCRIPTS = "tallyPrompter.scripts.v1";
+  var LS_SETTINGS = "tallyPrompter.settings.v1";
+
+  var TEXT_SWATCHES = ["#f5f4ef", "#0f1113", "#ffd54a", "#7fffb0"];
+  var BG_SWATCHES = ["#0b0d10", "#111820", "#111111", "#0e1a14"];
+
+  var defaultSettings = {
+    fontFamily: "'Public Sans', sans-serif",
+    fontSize: 48,
+    textColor: "#f5f4ef",
+    bgColor: "#0b0d10",
+    scrollSpeed: 55,
+    sensitivity: 35,
+    voiceOn: false
+  };
+
+  function loadScripts() {
+    try { return JSON.parse(localStorage.getItem(LS_SCRIPTS)) || []; }
+    catch (e) { return []; }
+  }
+  function saveScripts(list) {
+    try { localStorage.setItem(LS_SCRIPTS, JSON.stringify(list)); } catch (e) {}
+  }
+  function loadSettings() {
+    try {
+      var s = JSON.parse(localStorage.getItem(LS_SETTINGS));
+      return Object.assign({}, defaultSettings, s || {});
+    } catch (e) { return Object.assign({}, defaultSettings); }
+  }
+  function saveSettings(s) {
+    try { localStorage.setItem(LS_SETTINGS, JSON.stringify(s)); } catch (e) {}
+  }
+
+  var scripts = loadScripts();
+  var settings = loadSettings();
+  var activeScriptId = null;
+  var editorEditingId = null;
+
+  if (scripts.length === 0) {
+    scripts.push({
+      id: "sample-1",
+      title: "Sample: 30-second welcome",
+      body: "Hey, welcome back to the channel.\n\nToday we're breaking down one simple habit that makes the biggest difference after 40 — and it isn't diet or exercise, it's sleep.\n\nStick around, because by the end of this video you'll have one change you can make tonight.",
+      updatedAt: Date.now()
+    });
+    saveScripts(scripts);
+  }
+
+  function wordCount(text) {
+    var t = (text || "").trim();
+    if (!t) return 0;
+    return t.split(/\s+/).length;
+  }
+  function fmtDate(ts) {
+    var d = new Date(ts);
+    return d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+  }
+
+  // ---------------- LIBRARY ----------------
+  var $list = document.getElementById("script-list");
+
+  function renderLibrary() {
+    $list.innerHTML = "";
+    if (scripts.length === 0) {
+      var empty = document.createElement("div");
+      empty.className = "empty-state";
+      empty.innerHTML = "<strong>No scripts yet</strong>Write or paste one to start rehearsing.";
+      $list.appendChild(empty);
+      return;
+    }
+    scripts.slice().sort(function (a, b) { return b.updatedAt - a.updatedAt; }).forEach(function (s) {
+      var wc = wordCount(s.body);
+      var mins = Math.max(1, Math.round(wc / 140));
+      var card = document.createElement("div");
+      card.className = "script-card";
+      card.setAttribute("role", "button");
+      card.setAttribute("tabindex", "0");
+      var preview = (s.body || "").replace(/\s+/g, " ").trim();
+      card.innerHTML =
+        '<div class="script-main">' +
+          '<div class="script-title"></div>' +
+          '<div class="script-preview"></div>' +
+          '<div class="script-meta"><span>' + wc + ' words</span><span>~' + mins + ' min at 140 wpm</span><span>Edited ' + fmtDate(s.updatedAt) + '</span></div>' +
+        '</div>' +
+        '<div class="script-actions">' +
+          '<button class="icon-btn" data-action="edit" aria-label="Edit script">✎</button>' +
+          '<button class="icon-btn btn-danger" data-action="delete" aria-label="Delete script">🗑</button>' +
+        '</div>';
+      card.querySelector(".script-title").textContent = s.title || "Untitled script";
+      card.querySelector(".script-preview").textContent = preview || "Empty script";
+      card.addEventListener("click", function (e) {
+        var action = e.target.closest("[data-action]");
+        if (action) {
+          e.stopPropagation();
+          if (action.dataset.action === "edit") openEditor(s.id);
+          if (action.dataset.action === "delete") deleteScript(s.id);
+          return;
+        }
+        openPrompter(s.id);
+      });
+      card.addEventListener("keydown", function (e) {
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openPrompter(s.id); }
+      });
+      $list.appendChild(card);
+    });
+  }
+
+  function deleteScript(id) {
+    var s = scripts.find(function (x) { return x.id === id; });
+    if (s && !confirm('Delete "' + (s.title || "Untitled script") + '"? This can\'t be undone.')) return;
+    scripts = scripts.filter(function (x) { return x.id !== id; });
+    saveScripts(scripts);
+    renderLibrary();
+  }
+
+  document.getElementById("btn-new-script").addEventListener("click", function () { openEditor(null); });
+
+  // ---------------- EDITOR ----------------
+  var $viewLibrary = document.getElementById("view-library");
+  var $viewEditor = document.getElementById("view-editor");
+  var $editorTitle = document.getElementById("editor-title");
+  var $editorBody = document.getElementById("editor-body");
+  var $editorCount = document.getElementById("editor-count");
+
+  function openEditor(id) {
+    editorEditingId = id;
+    var s = id ? scripts.find(function (x) { return x.id === id; }) : null;
+    $editorTitle.value = s ? s.title : "";
+    $editorBody.value = s ? s.body : "";
+    updateEditorCount();
+    $viewLibrary.hidden = true;
+    $viewEditor.hidden = false;
+    $editorTitle.focus();
+  }
+  function closeEditor() {
+    $viewEditor.hidden = true;
+    $viewLibrary.hidden = false;
+    renderLibrary();
+  }
+  function updateEditorCount() {
+    $editorCount.textContent = wordCount($editorBody.value) + " words";
+  }
+  $editorBody.addEventListener("input", updateEditorCount);
+
+  document.getElementById("btn-editor-back").addEventListener("click", closeEditor);
+  document.getElementById("btn-editor-cancel").addEventListener("click", closeEditor);
+  document.getElementById("btn-editor-save").addEventListener("click", function () {
+    var title = $editorTitle.value.trim() || "Untitled script";
+    var body = $editorBody.value;
+    if (editorEditingId) {
+      var s = scripts.find(function (x) { return x.id === editorEditingId; });
+      s.title = title; s.body = body; s.updatedAt = Date.now();
+    } else {
+      var id = "s-" + Date.now() + "-" + Math.random().toString(36).slice(2, 7);
+      scripts.push({ id: id, title: title, body: body, updatedAt: Date.now() });
+      editorEditingId = id;
+    }
+    saveScripts(scripts);
+    closeEditor();
+  });
+
+  // ---------------- PROMPTER ----------------
+  var $viewPrompter = document.getElementById("view-prompter");
+  var $stage = document.getElementById("stage");
+  var $stageText = document.getElementById("stage-text");
+  var $drawer = document.getElementById("drawer");
+  var $meterFill = document.getElementById("meter-fill");
+  var $micStatus = document.getElementById("mic-status");
+  var $btnMicToggle = document.getElementById("btn-mic-toggle");
+
+  var audioCtx = null, analyser = null, micStream = null, rafId = null;
+  var lastFrameTime = 0;
+  var smoothedLevel = 0;
+  var manualPlaying = false;
+
+  function startLoop() {
+    if (rafId) return;
+    lastFrameTime = performance.now();
+    rafId = requestAnimationFrame(tick);
+  }
+  function stopLoopIfIdle() {
+    if (!analyser && !manualPlaying && rafId) {
+      cancelAnimationFrame(rafId);
+      rafId = null;
+    }
+  }
+
+  function openPrompter(id) {
+    activeScriptId = id;
+    var s = scripts.find(function (x) { return x.id === id; });
+    $stageText.textContent = s ? s.body : "";
+    applySettingsToStage();
+    $viewLibrary.hidden = true;
+    $viewPrompter.classList.add("active");
+    $stage.scrollTop = 0;
+    setManualPlaying(false);
+    requestWakeLock();
+    var embedded = false;
+    try { embedded = window.self !== window.top; } catch (e) { embedded = true; }
+    if (embedded && !analyser) showBlockedHelp();
+  }
+  function exitPrompter() {
+    setManualPlaying(false);
+    stopMic();
+    releaseWakeLock();
+    $viewPrompter.classList.remove("active");
+    $drawer.classList.remove("open");
+    $viewLibrary.hidden = false;
+    renderLibrary();
+  }
+  document.getElementById("btn-exit-prompter").addEventListener("click", exitPrompter);
+  document.getElementById("btn-restart").addEventListener("click", function () {
+    $stage.scrollTo({ top: 0, behavior: "smooth" });
+  });
+  document.getElementById("btn-edit-script").addEventListener("click", function () {
+    $drawer.classList.remove("open");
+    $viewPrompter.classList.remove("active");
+    stopMic();
+    openEditor(activeScriptId);
+  });
+
+  function applySettingsToStage() {
+    $stageText.style.fontFamily = settings.fontFamily;
+    $stageText.style.fontSize = settings.fontSize + "px";
+    $stageText.style.lineHeight = "1.5";
+    $stageText.style.color = settings.textColor;
+    $stage.style.background = settings.bgColor;
+    document.getElementById("range-sensitivity").value = settings.sensitivity;
+    document.getElementById("out-sensitivity").textContent = settings.sensitivity;
+    document.getElementById("range-speed").value = settings.scrollSpeed;
+    document.getElementById("out-speed").textContent = settings.scrollSpeed;
+    document.getElementById("range-size").value = settings.fontSize;
+    document.getElementById("out-size").textContent = settings.fontSize + "px";
+    document.getElementById("select-font").value = settings.fontFamily;
+    document.getElementById("toggle-voice").checked = !!analyser;
+    renderSwatches();
+  }
+
+  function renderSwatches() {
+    var $t = document.getElementById("swatches-text");
+    var $b = document.getElementById("swatches-bg");
+    $t.innerHTML = ""; $b.innerHTML = "";
+    TEXT_SWATCHES.forEach(function (c) {
+      var el = document.createElement("button");
+      el.type = "button"; el.className = "swatch" + (c.toLowerCase() === settings.textColor.toLowerCase() ? " selected" : "");
+      el.style.background = c; el.setAttribute("aria-label", "Text color " + c);
+      el.addEventListener("click", function () { settings.textColor = c; saveSettings(settings); applySettingsToStage(); });
+      $t.appendChild(el);
+    });
+    var custT = document.createElement("input");
+    custT.type = "color"; custT.value = settings.textColor;
+    custT.addEventListener("input", function () { settings.textColor = custT.value; saveSettings(settings); applySettingsToStage(); });
+    $t.appendChild(custT);
+
+    BG_SWATCHES.forEach(function (c) {
+      var el = document.createElement("button");
+      el.type = "button"; el.className = "swatch" + (c.toLowerCase() === settings.bgColor.toLowerCase() ? " selected" : "");
+      el.style.background = c; el.setAttribute("aria-label", "Background color " + c);
+      el.addEventListener("click", function () { settings.bgColor = c; saveSettings(settings); applySettingsToStage(); });
+      $b.appendChild(el);
+    });
+    var custB = document.createElement("input");
+    custB.type = "color"; custB.value = settings.bgColor;
+    custB.addEventListener("input", function () { settings.bgColor = custB.value; saveSettings(settings); applySettingsToStage(); });
+    $b.appendChild(custB);
+  }
+
+  document.getElementById("btn-drawer-toggle").addEventListener("click", function () { $drawer.classList.add("open"); });
+  document.getElementById("btn-drawer-close").addEventListener("click", function () { $drawer.classList.remove("open"); });
+
+  document.getElementById("range-sensitivity").addEventListener("input", function (e) {
+    settings.sensitivity = Number(e.target.value);
+    document.getElementById("out-sensitivity").textContent = settings.sensitivity;
+    saveSettings(settings);
+  });
+  document.getElementById("range-speed").addEventListener("input", function (e) {
+    settings.scrollSpeed = Number(e.target.value);
+    document.getElementById("out-speed").textContent = settings.scrollSpeed;
+    saveSettings(settings);
+  });
+  document.getElementById("range-size").addEventListener("input", function (e) {
+    settings.fontSize = Number(e.target.value);
+    document.getElementById("out-size").textContent = settings.fontSize + "px";
+    $stageText.style.fontSize = settings.fontSize + "px";
+    saveSettings(settings);
+  });
+  document.getElementById("select-font").addEventListener("change", function (e) {
+    settings.fontFamily = e.target.value;
+    $stageText.style.fontFamily = settings.fontFamily;
+    saveSettings(settings);
+  });
+
+  document.getElementById("toggle-voice").addEventListener("change", function (e) {
+    if (e.target.checked) startMic(); else stopMic();
+  });
+  document.getElementById("btn-enable-mic").addEventListener("click", function () {
+    if (analyser) stopMic(); else startMic();
+  });
+
+  var $embedNotice = document.getElementById("embed-notice");
+  function showBlockedHelp() {
+    $embedNotice.hidden = false;
+    var embedded = false;
+    try { embedded = window.self !== window.top; } catch (e) { embedded = true; }
+    $embedNotice.innerHTML = embedded
+      ? "<strong>This copy is running inside a preview frame</strong>Preview frames don't hand microphone permission through, so voice scroll can't start here no matter what you tap. Open the prompter from its own web address — <code>guides.dansmrtcoaching.com/prompter/</code> — and Chrome will ask for the mic normally."
+      : "<strong>The browser refused the microphone</strong>Open Chrome's site settings for this page (tap the icon left of the address bar) and set Microphone to Allow, then reload.";
+  }
+  $btnMicToggle.addEventListener("click", function () {
+    var t = document.getElementById("toggle-voice");
+    t.checked = !t.checked;
+    t.dispatchEvent(new Event("change"));
+  });
+
+  function setMicStatus(text) { $micStatus.textContent = text; }
+
+  function startMic() {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      setMicStatus(window.isSecureContext === false
+        ? "Mic needs a secure (https) page. Open this over https, then try again — or use ▶ to scroll at a steady speed."
+        : "This browser can't reach the mic. Use ▶ to scroll at a steady speed instead.");
+      document.getElementById("toggle-voice").checked = false;
+      showBlockedHelp();
+      return;
+    }
+    setMicStatus("Requesting mic access…");
+    navigator.mediaDevices.getUserMedia({ audio: true, video: false }).then(function (stream) {
+      micStream = stream;
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === "suspended") audioCtx.resume();
+      var source = audioCtx.createMediaStreamSource(stream);
+      analyser = audioCtx.createAnalyser();
+      analyser.fftSize = 512;
+      analyser.smoothingTimeConstant = 0.4;
+      source.connect(analyser);
+      settings.voiceOn = true;
+      saveSettings(settings);
+      document.getElementById("toggle-voice").checked = true;
+      $btnMicToggle.classList.add("is-live");
+      $btnMicToggle.setAttribute("aria-label", "Turn mic off");
+      setMicStatus("Listening — the script scrolls while you're talking.");
+      $embedNotice.hidden = true;
+      document.getElementById("btn-enable-mic").textContent = "Turn microphone off";
+      startLoop();
+    }).catch(function (err) {
+      var name = err && err.name ? err.name : "Error";
+      var msg;
+      if (name === "NotAllowedError" || name === "SecurityError") {
+        msg = "Mic blocked by the browser or page permissions. If this page is embedded, open it in its own browser tab and allow the mic. Meanwhile, ▶ scrolls at a steady speed.";
+      } else if (name === "NotFoundError" || name === "DevicesNotFoundError") {
+        msg = "No microphone found. Check that the lavalier receiver is plugged in, then try again.";
+      } else if (name === "NotReadableError") {
+        msg = "The mic is in use by another app. Close it and try again.";
+      } else {
+        msg = "Mic couldn't start (" + name + "). Use ▶ to scroll at a steady speed.";
+      }
+      setMicStatus(msg);
+      document.getElementById("toggle-voice").checked = false;
+      if (name === "NotAllowedError" || name === "SecurityError") showBlockedHelp();
+    });
+  }
+
+  function stopMic() {
+    settings.voiceOn = false;
+    saveSettings(settings);
+    document.getElementById("toggle-voice").checked = false;
+    $btnMicToggle.classList.remove("is-live");
+    $btnMicToggle.setAttribute("aria-label", "Turn mic on");
+    setMicStatus("Mic off — use ▶ to scroll at a steady speed, or drag the script by hand.");
+    document.getElementById("btn-enable-mic").textContent = "Enable microphone";
+    $meterFill.style.height = "0%";
+    if (micStream) { micStream.getTracks().forEach(function (t) { t.stop(); }); micStream = null; }
+    if (audioCtx) { audioCtx.close(); audioCtx = null; }
+    analyser = null;
+    stopLoopIfIdle();
+  }
+
+  var $btnPlayToggle = document.getElementById("btn-play-toggle");
+  function setManualPlaying(on) {
+    manualPlaying = on;
+    $btnPlayToggle.textContent = on ? "❚❚" : "▶";
+    $btnPlayToggle.classList.toggle("is-live", on);
+    $btnPlayToggle.setAttribute("aria-label", on ? "Pause scrolling" : "Start scrolling");
+    if (on) startLoop(); else stopLoopIfIdle();
+  }
+  $btnPlayToggle.addEventListener("click", function () { setManualPlaying(!manualPlaying); });
+
+  var timeData;
+  function tick(now) {
+    rafId = requestAnimationFrame(tick);
+    now = now || performance.now();
+    var dt = Math.min(64, now - lastFrameTime);
+    lastFrameTime = now;
+
+    var shouldScroll = manualPlaying;
+
+    if (analyser) {
+      if (!timeData || timeData.length !== analyser.fftSize) timeData = new Uint8Array(analyser.fftSize);
+      analyser.getByteTimeDomainData(timeData);
+      var sumSquares = 0;
+      for (var i = 0; i < timeData.length; i++) {
+        var v = (timeData[i] - 128) / 128;
+        sumSquares += v * v;
+      }
+      var rms = Math.sqrt(sumSquares / timeData.length);
+      var level = Math.min(1, rms * 6);
+      smoothedLevel = smoothedLevel * 0.7 + level * 0.3;
+      $meterFill.style.height = Math.round(smoothedLevel * 100) + "%";
+
+      var threshold = settings.sensitivity / 100 * 0.6;
+      if (smoothedLevel > threshold) shouldScroll = true;
+    }
+
+    if (shouldScroll) {
+      $stage.scrollTop += settings.scrollSpeed * (dt / 1000);
+    }
+  }
+
+  // Keep the tablet screen awake while a script is on stage.
+  var wakeLock = null;
+  function requestWakeLock() {
+    if (!navigator.wakeLock) return;
+    navigator.wakeLock.request("screen").then(function (lock) { wakeLock = lock; }).catch(function () {});
+  }
+  function releaseWakeLock() {
+    if (wakeLock) { wakeLock.release().catch(function () {}); wakeLock = null; }
+  }
+  document.addEventListener("visibilitychange", function () {
+    if (document.visibilityState === "visible" && $viewPrompter.classList.contains("active")) requestWakeLock();
+  });
+
+  applySettingsToStage();
+  renderLibrary();
+})();
+</script>
+</body>
+</html>
