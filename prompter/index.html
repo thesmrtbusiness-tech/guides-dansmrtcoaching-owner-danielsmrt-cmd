@@ -30,6 +30,7 @@
     --tally-dim: #ffe1db;
     --focus: #2d6e5e;
     --shadow: 0 1px 2px rgba(20,23,26,.06), 0 8px 24px rgba(20,23,26,.08);
+    --cue: 12vh;
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
@@ -134,11 +135,26 @@
     scrollbar-width: none;
   }
   .stage::-webkit-scrollbar { display: none; }
-  .stage-pad { height: 60vh; }
+  /* Read near the top so the rest of the screen shows what's coming. */
+  .stage-pad-top { height: var(--cue); }
+  .stage-pad-bottom { height: 88vh; }
   .stage-text {
-    padding: 0 6vw; white-space: pre-wrap; word-wrap: break-word;
+    padding-left: 6vw; padding-right: max(6vw, 78px);
+    white-space: pre-wrap; word-wrap: break-word;
     max-width: 1100px; margin: 0 auto;
   }
+
+  .cue { position: absolute; top: var(--cue); left: 0; right: 0; pointer-events: none; z-index: 3; }
+  .cue::before {
+    content: ""; position: absolute; left: 0; right: 0; top: -1px; height: 1px;
+    background: rgba(255, 70, 48, .32);
+  }
+  .cue-mark {
+    position: absolute; top: -7px; width: 0; height: 0;
+    border-top: 7px solid transparent; border-bottom: 7px solid transparent;
+  }
+  .cue-mark.left { left: 0; border-left: 11px solid var(--tally); }
+  .cue-mark.right { right: 0; border-right: 11px solid var(--tally); }
 
   .rail {
     position: fixed; top: 0; right: 0; height: 100%; display: flex; flex-direction: column; align-items: flex-end;
@@ -245,9 +261,14 @@
 
 <div id="view-prompter">
   <div class="stage" id="stage">
-    <div class="stage-pad"></div>
+    <div class="stage-pad-top"></div>
     <div class="stage-text" id="stage-text"></div>
-    <div class="stage-pad"></div>
+    <div class="stage-pad-bottom"></div>
+  </div>
+
+  <div class="cue" id="cue" aria-hidden="true">
+    <span class="cue-mark left"></span>
+    <span class="cue-mark right"></span>
   </div>
 
   <div class="rail">
@@ -285,6 +306,19 @@
     <div class="field">
       <label for="range-speed">Scroll speed <output id="out-speed"></output></label>
       <div class="field-row"><input type="range" id="range-speed" min="10" max="140" value="55"></div>
+    </div>
+
+    <div class="field">
+      <label for="range-cue">Read line position <output id="out-cue"></output></label>
+      <div class="field-row"><input type="range" id="range-cue" min="5" max="60" value="12"></div>
+    </div>
+
+    <div class="field toggle-row">
+      <span class="toggle-label">Show read-line markers</span>
+      <label class="switch" for="toggle-cue">
+        <input type="checkbox" id="toggle-cue" checked>
+        <span class="track"><span class="thumb"></span></span>
+      </label>
     </div>
 
     <div class="field">
@@ -333,6 +367,8 @@
     bgColor: "#0b0d10",
     scrollSpeed: 55,
     sensitivity: 35,
+    cuePosition: 12,
+    showCue: true,
     voiceOn: false
   };
 
@@ -554,6 +590,11 @@
     document.getElementById("range-size").value = settings.fontSize;
     document.getElementById("out-size").textContent = settings.fontSize + "px";
     document.getElementById("select-font").value = settings.fontFamily;
+    document.getElementById("range-cue").value = settings.cuePosition;
+    document.getElementById("out-cue").textContent = settings.cuePosition + "%";
+    document.getElementById("toggle-cue").checked = settings.showCue;
+    document.documentElement.style.setProperty("--cue", settings.cuePosition + "vh");
+    document.getElementById("cue").hidden = !settings.showCue;
     document.getElementById("toggle-voice").checked = !!analyser;
     renderSwatches();
   }
@@ -604,6 +645,17 @@
     settings.fontSize = Number(e.target.value);
     document.getElementById("out-size").textContent = settings.fontSize + "px";
     $stageText.style.fontSize = settings.fontSize + "px";
+    saveSettings(settings);
+  });
+  document.getElementById("range-cue").addEventListener("input", function (e) {
+    settings.cuePosition = Number(e.target.value);
+    document.getElementById("out-cue").textContent = settings.cuePosition + "%";
+    document.documentElement.style.setProperty("--cue", settings.cuePosition + "vh");
+    saveSettings(settings);
+  });
+  document.getElementById("toggle-cue").addEventListener("change", function (e) {
+    settings.showCue = e.target.checked;
+    document.getElementById("cue").hidden = !settings.showCue;
     saveSettings(settings);
   });
   document.getElementById("select-font").addEventListener("change", function (e) {
