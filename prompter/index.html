@@ -6,6 +6,7 @@
 <meta name="description" content="Voice-activated teleprompter for recording sessions.">
 <meta name="theme-color" content="#14171c">
 <meta name="robots" content="noindex, nofollow">
+<meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
 <style>
   html, body { margin: 0; height: 100%; }
   img { max-width: 100%; }
@@ -135,9 +136,9 @@
     scrollbar-width: none;
   }
   .stage::-webkit-scrollbar { display: none; }
-  /* Read near the top so the rest of the screen shows what's coming. */
-  .stage-pad-top { height: var(--cue); }
-  .stage-pad-bottom { height: 88vh; }
+  /* The script opens flush to the top; the cue marker is a separate guide. */
+  .stage-pad-top { height: 3vh; }
+  .stage-pad-bottom { height: 95vh; }
   .stage-text {
     padding-left: 6vw; padding-right: max(6vw, 78px);
     white-space: pre-wrap; word-wrap: break-word;
@@ -233,7 +234,7 @@
         <span class="brand-lamp" aria-hidden="true"></span>
         <div>
           <div class="brand-name">Tally Prompter</div>
-          <div class="brand-sub">Voice-activated scroll · reads the mic, not your words</div>
+          <div class="brand-sub">Voice-activated scroll · <span class="mono" id="build-stamp">build 5</span></div>
         </div>
       </div>
       <button class="btn btn-primary" id="btn-new-script" type="button">+ New script</button>
@@ -551,6 +552,7 @@
     $viewLibrary.hidden = true;
     $viewPrompter.classList.add("active");
     $stage.scrollTop = 0;
+    requestAnimationFrame(function () { $stage.scrollTop = 0; });
     setManualPlaying(false);
     requestWakeLock();
     var embedded = false;
