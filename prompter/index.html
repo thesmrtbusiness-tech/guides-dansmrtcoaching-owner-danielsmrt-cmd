@@ -13,6 +13,7 @@
   [hidden] { display: none !important; }
 </style>
 <title>Tally Prompter</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&family=JetBrains+Mono:wght@500;600&family=Public+Sans:wght@400;600;700&family=Archivo:wght@600;700;800&family=Literata:wght@500;600&display=swap">
 <style>
@@ -221,6 +222,27 @@
   .drawer .btn { width: 100%; justify-content: center; margin-top: 4px; }
   .status-line { font-size: 0.78rem; color: var(--text-on-ink-dim); margin-top: -8px; margin-bottom: 18px; line-height: 1.5; }
 
+  /* ---------- SHARE MODAL ---------- */
+  .modal {
+    position: fixed; inset: 0; z-index: 20; background: rgba(12, 14, 17, .66);
+    display: grid; place-items: center; padding: 20px;
+  }
+  .modal-panel {
+    background: var(--paper-2); color: var(--text); border: 1px solid var(--line);
+    border-radius: 16px; padding: 24px; max-width: 420px; width: 100%;
+    box-shadow: 0 24px 60px rgba(0,0,0,.4); display: flex; flex-direction: column; gap: 14px;
+  }
+  .modal-panel h2 { font-size: 1.15rem; }
+  .modal-note { margin: 0; color: var(--text-dim); font-size: 0.85rem; line-height: 1.55; }
+  .qr-box {
+    background: #ffffff; border-radius: 12px; padding: 14px; display: grid; place-items: center;
+    min-height: 60px;
+  }
+  .qr-box img, .qr-box canvas { display: block; max-width: 100%; height: auto; }
+  .qr-box p { margin: 0; color: #4a4f55; font-size: 0.82rem; text-align: center; line-height: 1.5; }
+  .modal-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+  .modal-actions .btn { flex: 1; justify-content: center; min-width: 120px; }
+
   @media (max-width: 420px) {
     .lib-head { align-items: flex-start; flex-direction: column; }
   }
@@ -234,12 +256,26 @@
         <span class="brand-lamp" aria-hidden="true"></span>
         <div>
           <div class="brand-name">Tally Prompter</div>
-          <div class="brand-sub">Voice-activated scroll · <span class="mono" id="build-stamp">build 5</span></div>
+          <div class="brand-sub">Voice-activated scroll · <span class="mono" id="build-stamp">build 6</span></div>
         </div>
       </div>
       <button class="btn btn-primary" id="btn-new-script" type="button">+ New script</button>
     </div>
     <div class="script-list" id="script-list"></div>
+  </div>
+</div>
+
+<div class="modal" id="share-modal" hidden>
+  <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="share-heading">
+    <h2 id="share-heading">Send to another device</h2>
+    <p class="modal-note">Scripts live in each device's own browser storage, so they don't travel on their own. Scan this on the tablet, or send yourself the link.</p>
+    <div class="qr-box" id="qr-box"></div>
+    <p class="modal-note" id="share-note"></p>
+    <div class="modal-actions">
+      <button class="btn btn-primary" id="btn-copy-link" type="button">Copy link</button>
+      <button class="btn" id="btn-copy-text" type="button">Copy script text</button>
+      <button class="btn btn-ghost" id="btn-share-close" type="button">Close</button>
+    </div>
   </div>
 </div>
 
@@ -442,6 +478,7 @@
           '<div class="script-meta"><span>' + wc + ' words</span><span>~' + mins + ' min at 140 wpm</span><span>Edited ' + fmtDate(s.updatedAt) + '</span></div>' +
         '</div>' +
         '<div class="script-actions">' +
+          '<button class="icon-btn" data-action="send" aria-label="Send to another device">⇪</button>' +
           '<button class="icon-btn" data-action="edit" aria-label="Edit script">✎</button>' +
           '<button class="icon-btn btn-danger" data-action="delete" aria-label="Delete script">🗑</button>' +
         '</div>';
@@ -451,6 +488,7 @@
         var action = e.target.closest("[data-action]");
         if (action) {
           e.stopPropagation();
+          if (action.dataset.action === "send") openShare(s.id);
           if (action.dataset.action === "edit") openEditor(s.id);
           if (action.dataset.action === "delete") deleteScript(s.id);
           return;
@@ -473,6 +511,103 @@
   }
 
   document.getElementById("btn-new-script").addEventListener("click", function () { openEditor(null); });
+
+  // ---------------- TRANSFER BETWEEN DEVICES ----------------
+  // Scripts live in each device's own localStorage, so a script is carried
+  // across in the URL itself rather than through any server.
+  function b64encode(str) {
+    var bytes = new TextEncoder().encode(str);
+    var bin = "";
+    for (var i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+    return btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  }
+  function b64decode(s) {
+    s = s.replace(/-/g, "+").replace(/_/g, "/");
+    while (s.length % 4) s += "=";
+    var bin = atob(s);
+    var bytes = new Uint8Array(bin.length);
+    for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    return new TextDecoder().decode(bytes);
+  }
+
+  var $shareModal = document.getElementById("share-modal");
+  var $qrBox = document.getElementById("qr-box");
+  var $shareNote = document.getElementById("share-note");
+  var shareUrl = "", shareText = "";
+
+  function openShare(id) {
+    var s = scripts.find(function (x) { return x.id === id; });
+    if (!s) return;
+    shareText = s.body || "";
+    var payload = b64encode(JSON.stringify({ t: s.title, b: s.body }));
+    shareUrl = location.origin + location.pathname + "#script=" + payload;
+
+    $qrBox.innerHTML = "";
+    if (typeof QRCode === "undefined") {
+      $qrBox.innerHTML = "<p>QR codes need an internet connection the first time. Use Copy link instead.</p>";
+    } else if (shareUrl.length > 2000) {
+      $qrBox.innerHTML = "<p>This script is too long for a QR code. Use <strong>Copy script text</strong> and paste it into a new script on the tablet.</p>";
+    } else {
+      try {
+        new QRCode($qrBox, { text: shareUrl, width: 220, height: 220, correctLevel: QRCode.CorrectLevel.L });
+      } catch (e) {
+        $qrBox.innerHTML = "<p>Couldn't draw a QR code for this script. Use Copy link or Copy script text.</p>";
+      }
+    }
+    $shareNote.textContent = "Opening the link on the tablet adds “" + (s.title || "Untitled script") + "” to its library.";
+    $shareModal.hidden = false;
+  }
+
+  document.getElementById("btn-share-close").addEventListener("click", function () {
+    $shareModal.hidden = true;
+  });
+  $shareModal.addEventListener("click", function (e) {
+    if (e.target === $shareModal) $shareModal.hidden = true;
+  });
+
+  function copyToClipboard(text, btn, okLabel) {
+    var original = btn.textContent;
+    function done(ok) {
+      btn.textContent = ok ? okLabel : "Press and hold to copy";
+      setTimeout(function () { btn.textContent = original; }, 1800);
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () { done(true); }, function () { done(false); });
+    } else {
+      done(false);
+    }
+  }
+  document.getElementById("btn-copy-link").addEventListener("click", function () {
+    copyToClipboard(shareUrl, this, "Link copied");
+  });
+  document.getElementById("btn-copy-text").addEventListener("click", function () {
+    copyToClipboard(shareText, this, "Script copied");
+  });
+
+  function importFromHash() {
+    var m = /^#script=(.+)$/.exec(location.hash || "");
+    if (!m) return;
+    var incoming;
+    try { incoming = JSON.parse(b64decode(m[1])); } catch (e) { incoming = null; }
+    history.replaceState(null, "", location.pathname);
+    if (!incoming || typeof incoming.b !== "string") {
+      alert("That script link was incomplete, so nothing was added.");
+      return;
+    }
+    var title = (incoming.t || "Untitled script").slice(0, 120);
+    var existing = scripts.find(function (x) { return x.title === title && x.body === incoming.b; });
+    if (existing) {
+      activeScriptId = existing.id;
+      return;
+    }
+    scripts.push({
+      id: "s-" + Date.now() + "-" + Math.random().toString(36).slice(2, 7),
+      title: title,
+      body: incoming.b,
+      updatedAt: Date.now()
+    });
+    saveScripts(scripts);
+  }
 
   // ---------------- EDITOR ----------------
   var $viewLibrary = document.getElementById("view-library");
@@ -805,6 +940,7 @@
     if (document.visibilityState === "visible" && $viewPrompter.classList.contains("active")) requestWakeLock();
   });
 
+  importFromHash();
   applySettingsToStage();
   renderLibrary();
 })();
