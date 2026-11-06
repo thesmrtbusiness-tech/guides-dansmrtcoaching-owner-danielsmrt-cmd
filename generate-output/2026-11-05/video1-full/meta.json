@@ -1,0 +1,13 @@
+{
+  "model": "elevenlabs/flash-v2.5",
+  "voice_name": "Brian",
+  "voice_id": "nPczCjzI2devNBz1zQrb",
+  "characters": 7307,
+  "est_cost_usd": 0.7307,
+  "prediction_id": "4b0ba96039194047a8135a016a92bd84",
+  "output_url": "https://d2h7xmz5gqybh9.cloudfront.net/output/078ddd40-4f7a-4fec-98f0-bf286cdb4797.mp3",
+  "stability": 0.5,
+  "similarity": 1,
+  "use_speaker_boost": true,
+  "created": "2026-11-06"
+}
