@@ -9,5 +9,13 @@
   "stability": 0.5,
   "similarity": 1,
   "use_speaker_boost": true,
-  "created": "2026-11-06"
+  "created": "2026-11-06",
+  "fix_1": {
+    "passage": "If this ranking is helping, subscribe... grocery store.",
+    "characters": 133,
+    "est_cost_usd": 0.0133,
+    "prediction_id": "71ccc62d97d24d4c8f234034cf480335",
+    "spliced_over_seconds": "257.4-266.3"
+  },
+  "total_est_cost_usd": 0.744
 }
