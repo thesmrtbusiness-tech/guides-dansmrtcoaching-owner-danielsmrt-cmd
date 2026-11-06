@@ -1,12 +1,11 @@
 Listening check (automated: speech-to-text transcript compared to script, plus silence/clipping scan)
-File: video1_Brian.mp3 (8:03 after fix 1)
+File: video1_Brian.mp3 (7:57 after fixes 1 and 2)
 
-FIX 1 DONE: ~259 s "I am helping subscribe" glitch. Passage regenerated (133 chars, ~$0.013) and spliced. Re-check: gone.
+FIXED: ~259 s "I am helping subscribe"; ~294-300 s dropped "or a"; ~407-410 s garbled "Mistake two" line.
+Check after fixes: 98.6% word match, peak -2.1 dB (no clipping).
 
-REMAINING GLITCHES (confirmed by two models, both disagree with script):
- - ~407-410 s  "Mistake two: buying flavored yogurt, which can carry..." heard as "flavored yogurt. Egan Vandy yogurt, which can carry"
- - ~470-472 s  "Two, canned tuna" heard as "Two, guan xiu and a tuna"
- - ~294-298 s  "a hard boiled egg or a spoonful" - "or a" dropped (minor)
- - ~274 s      "protein per serving" heard as "preserving" by one model only (likely fine)
-Everything else: 98.4% word match, digits spoken as words (expected). Peak -1.9 dB, no clipping.
+STILL WRONG (confirmed by two models):
+ - ~464 s (recap) "Two, canned tuna" heard as "Two, tau, canned prawn tuna" - the regenerated recap still garbles this line.
+ - ~18.6 s and ~35.6 s "I ranked them" / "how I ranked these" spoken as "I rank them" / "I rank these" (tense).
+Not a problem: "preserving" at ~275 s was heard by one model only; "ranked"/"rank" elsewhere is fine.
 Limits: checks words and levels, not tone or pacing.

@@ -17,5 +17,19 @@
     "prediction_id": "71ccc62d97d24d4c8f234034cf480335",
     "spliced_over_seconds": "257.4-266.3"
   },
-  "total_est_cost_usd": 0.744
+  "total_est_cost_usd": 0.7777,
+  "fix_2": {
+    "passages": [
+      "Here's how to make it a full meal ... plus berries.",
+      "Mistake two: buying flavored yogurt ...",
+      "Recap, from worst to best ... One, plain Greek yogurt."
+    ],
+    "characters": 337,
+    "est_cost_usd": 0.0337,
+    "prediction_ids": [
+      "605ccd25762b4119ac289501b75c712d",
+      "a6b5ebf0003f4df49e59e0d3eee301b5",
+      "121b0e9af5f844918c747e058e499f23"
+    ]
+  }
 }
