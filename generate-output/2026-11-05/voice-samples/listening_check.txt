@@ -1,0 +1,2 @@
+Listening check (automated transcript vs script): Bill 100%, Brian 100%, Eric 100% word match. No defects found.
+Limits: checks words only, not tone or voice quality.

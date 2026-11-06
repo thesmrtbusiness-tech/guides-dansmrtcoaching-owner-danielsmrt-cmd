@@ -1,0 +1,9 @@
+Listening check (automated: speech-to-text transcript compared to script, plus silence/clipping scan)
+File: video1_Brian.mp3  (8:04, mono 128 kbps)
+Result: 98.3% word match. Digits spoken as words (expected).
+Peak level -1.4 dB (no clipping). One 1.7 s pause at ~408 s (between paragraphs, normal).
+DEFECT at ~258.5-261.3 s: "If this ranking is helping, I am helping subscribe." The word "subscribe" is
+garbled/extra words added. Both small.en and medium.en transcripts agree.
+Proposed fix: regenerate "If this ranking is helping, subscribe. A new ranked food list goes up every
+weekday, so you never have to guess at the grocery store." and splice over ~257.5-266.0 s.
+Limits: this checks words and audio levels, not tone or pacing. A human ear is still needed for that.
