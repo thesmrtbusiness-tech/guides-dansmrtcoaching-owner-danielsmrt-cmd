@@ -1,0 +1,12 @@
+{
+  "model": "elevenlabs/flash-v2.5",
+  "voice_name": "Eric",
+  "voice_id": "cjVigY5qzO86Huf0OWal",
+  "characters": 187,
+  "est_cost_usd": 0.0187,
+  "prediction_id": "ad3d7ba44d9b4cfabc9f470a79ab2cac",
+  "output_url": "https://d2h7xmz5gqybh9.cloudfront.net/output/c9b4d035-804d-4087-9061-e572139619b8.mp3",
+  "stability": 0.5,
+  "similarity": 1,
+  "created": "2026-11-06"
+}

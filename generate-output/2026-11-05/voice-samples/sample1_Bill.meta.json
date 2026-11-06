@@ -1,0 +1,12 @@
+{
+  "model": "elevenlabs/flash-v2.5",
+  "voice_name": "Bill",
+  "voice_id": "pqHfZKP75CvOlQylNhV4",
+  "characters": 187,
+  "est_cost_usd": 0.0187,
+  "prediction_id": "f9bb9adbe3ef4418ba76cd70c5d06b6a",
+  "output_url": "https://d2h7xmz5gqybh9.cloudfront.net/output/36d20992-3fa5-4016-86a3-588c4cad42e5.mp3",
+  "stability": 0.5,
+  "similarity": 1,
+  "created": "2026-11-06"
+}
